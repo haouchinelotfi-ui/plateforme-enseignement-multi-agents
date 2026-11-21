@@ -44,9 +44,11 @@ plateforme-enseignement-multi-agents/
 │       ├── billing.py       # Stripe Checkout + portal
 │       ├── webhooks.py      # Webhooks Stripe
 │       └── admin.py         # Analytique + alertes qualité
-├── db/migrations/
-│   ├── 001_init.sql         # Schéma complet
-│   └── 002_seed.sql         # Niveaux, matières, 100+ agents
+├── db/
+│   ├── init.sql             # Schéma + seed UNIFIÉ (1 commande)
+│   └── migrations/
+│       ├── 001_init.sql     # Schéma complet
+│       └── 002_seed.sql     # Niveaux, matières, 100+ agents
 ├── requirements.txt
 ├── render.yaml              # Infrastructure as Code
 ├── .env.example
@@ -63,11 +65,13 @@ cp .env.example .env            # renseigner les valeurs
 uvicorn app.main:app --reload --port 8000
 ```
 
-Appliquer les migrations SQL sur votre base PostgreSQL :
+Initialiser la base PostgreSQL (une seule commande, idempotent) :
 ```bash
-psql $DATABASE_URL -f db/migrations/001_init.sql
-psql $DATABASE_URL -f db/migrations/002_seed.sql
+psql $DATABASE_URL -f db/init.sql
 ```
+> Crée les 5 tables, index, et **121 agents** (11 niveaux × 11 matières).
+> Alternative : exécuter `db/migrations/001_init.sql` puis `002_seed.sql` séparément.
+> Sur Supabase/Neon : copier-coller le contenu de `db/init.sql` dans le SQL Editor.
 
 ## Endpoints API
 
