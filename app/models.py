@@ -109,6 +109,7 @@ class ChatSession(Base):
     messages: Mapped[list["ChatMessage"]] = relationship(
         back_populates="session", cascade="all, delete-orphan"
     )
+    usage_logs: Mapped[list["UsageLog"]] = relationship(back_populates="session")
 
 
 class ChatMessage(Base):
@@ -118,6 +119,8 @@ class ChatMessage(Base):
     role: Mapped[str] = mapped_column(String(20))  # user | assistant
     content: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    session: Mapped["ChatSession"] = relationship(back_populates="messages")
 
 
 class UsageLog(Base):
@@ -134,4 +137,4 @@ class UsageLog(Base):
     comment: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="usage_logs")
-    session: Mapped["ChatSession | None"] = relationship()
+    session: Mapped["ChatSession | None"] = relationship(back_populates="usage_logs")

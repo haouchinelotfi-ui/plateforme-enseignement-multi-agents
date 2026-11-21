@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import User, Agent, ChatSession, ChatMessage, UsageLog
+from app.models import User, Agent, ChatSession, ChatMessage, UsageLog, Level, Subject
 from app.schemas import ChatRequest, ChatResponse, ChatMessageOut
 from app.config import settings
 
@@ -21,8 +21,8 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 async def _call_llm(system_prompt: str, history: list[dict], user_msg: str) -> tuple[str, int, int]:
     """Appelle un LLM compatible OpenAI. Retourne (reply, tokens_in, tokens_out)."""
-    if not settings.LLM_API_KEY or settings.LLM_API_KEY.startswith("sk-placeholder"):
-        # Mode démo offline
+    if not settings.LLM_API_KEY or settings.LLM_API_KEY.startswith("sk-placeholder") or settings.LLM_API_KEY == "":
+        # Mode démo offline - pas de clé LLM configurée
         reply = (
             f"Je suis ton tuteur pédagogique. (Mode démo - configure LLM_API_KEY) "
             f"Tu m'as demandé: « {user_msg[:200]} ». "
@@ -60,16 +60,21 @@ async def _resolve_agent(db: AsyncSession, req: ChatRequest, user: User) -> Agen
         if agent and agent.is_active:
             return agent
     # Sinon: cherche par level + subject
-    level_code = req.level_code or (user.detected_level.code if user.detected_level else "CEM-1")
+    level_code = req.level_code or (user.detected_level.code if user.detected_level else None)
     q = select(Agent).where(Agent.is_active == True)
     if req.subject_slug:
-        q = q.join(Agent.subject, Agent.level).where(
-            Agent.subject.has(slug=req.subject_slug),
-            Agent.level.has(code=level_code),
-        )
+        q = q.where(Agent.subject.has(Subject.slug == req.subject_slug))
+    if level_code:
+        q = q.where(Agent.level.has(Level.code == level_code))
     agent = (await db.execute(q)).scalars().first()
     if not agent:
-        # fallback: premier agent actif
+        # fallback: premier agent actif de ce subject
+        if req.subject_slug:
+            agent = (await db.execute(
+                select(Agent).where(Agent.is_active == True, Agent.subject.has(Subject.slug == req.subject_slug))
+            )).scalars().first()
+    if not agent:
+        # fallback global: premier agent actif
         agent = (await db.execute(select(Agent).where(Agent.is_active == True))).scalars().first()
     if not agent:
         raise HTTPException(404, "Aucun agent disponible")
