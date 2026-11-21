@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-ink-900 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .dark body {
+    @apply bg-ink-900 text-ink-100;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-ink-200 rounded-full; }
+  .dark ::-webkit-scrollbar-thumb { @apply bg-ink-700; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-ink-300; }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 shadow-sm hover:shadow-md;
+  }
+  .btn-secondary {
+    @apply btn bg-ink-100 text-ink-900 hover:bg-ink-200 focus:ring-ink-300;
+  }
+  .dark .btn-secondary { @apply bg-ink-800 text-ink-100 hover:bg-ink-700; }
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-700 hover:bg-ink-100 focus:ring-ink-300;
+  }
+  .dark .btn-ghost { @apply text-ink-200 hover:bg-ink-800; }
+
+  .card {
+    @apply rounded-2xl border border-ink-100 bg-white shadow-sm;
+  }
+  .dark .card { @apply border-ink-800 bg-ink-800/50; }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition;
+  }
+  .dark .input { @apply border-ink-700 bg-ink-800 text-ink-100 placeholder:text-ink-500; }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+  }
+  .badge-brand { @apply badge bg-brand-50 text-brand-700; }
+  .dark .badge-brand { @apply bg-brand-900/40 text-brand-300; }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-brand-600 via-brand-500 to-brand-400 bg-clip-text text-transparent;
+    background-size: 200% auto;
+  }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+  }
+  .dark .glass { @apply bg-ink-900/70 border-ink-700/50; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  .bg-grid {
+    background-image: linear-gradient(to right, rgba(120,120,140,0.07) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(120,120,140,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(rgba(120,120,140,0.15) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .shimmer-bg {
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    background-size: 1000px 100%;
+  }
+
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+  .animate-delay-700 { animation-delay: 700ms; }
+}
