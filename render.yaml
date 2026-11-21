@@ -1,0 +1,59 @@
+# Render Infrastructure as Code — Plateforme d'Enseignement Multi-Agents
+# Doc : https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: edtech-orchestrator
+    runtime: python
+    region: frankfurt  # EU (ajustable)
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # valeur à renseigner manuellement (Neon/Supabase)
+      - key: REDIS_URL
+        sync: false          # valeur à renseigner (Upstash)
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.openai.com/v1
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_ID_YEARLY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+
+  # Cron : relances inactivité + rappels fin de trial (toutes les 6h)
+  - type: cron
+    name: edtech-cron-emails
+    runtime: python
+    plan: free
+    schedule: "0 */6 * * *"   # toutes les 6 heures
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.scheduler
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FROM_EMAIL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
