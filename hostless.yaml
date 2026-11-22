@@ -1,0 +1,4 @@
+# Hostless configuration
+# Uses Nixpacks buildpack instead of Docker for lower memory build
+buildSystem: pack
+containerPort: 8000
